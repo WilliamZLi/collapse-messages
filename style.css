@@ -1,7 +1,5 @@
 .mes_text_collapsed {
-    display: -webkit-box !important;
-    -webkit-line-clamp: var(--collapse-lines, 3);
-    -webkit-box-orient: vertical !important;
+    max-height: calc(var(--collapse-lines, 3) * 1lh) !important;
     overflow: hidden !important;
 }
 
