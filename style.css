@@ -1,6 +1,18 @@
 .mes_text_collapsed {
     max-height: calc(var(--collapse-lines, 3) * 1lh) !important;
     overflow: hidden !important;
+    position: relative !important;
+}
+
+.mes_text_collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3em;
+    background: linear-gradient(transparent, var(--SmartThemeBlurTintColor, var(--mesBlurTintColor, #000)));
+    pointer-events: none;
 }
 
 .mes_collapse_btn {
