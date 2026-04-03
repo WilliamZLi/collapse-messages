@@ -72,7 +72,12 @@ function addCollapseButton(mesElement) {
         e.stopPropagation();
         toggleCollapse(mesElement);
     });
-    mesElement.find(".mes_buttons").prepend(btn);
+    const eyeBtn = mesElement.find(".mes_hide");
+    if (eyeBtn.length) {
+        btn.insertAfter(eyeBtn);
+    } else {
+        mesElement.find(".mes_buttons").prepend(btn);
+    }
 }
 
 function initMessage(mesElement) {
