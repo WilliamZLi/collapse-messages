@@ -4,6 +4,22 @@
     position: relative !important;
 }
 
+.mes_text_collapsed p:empty,
+.mes_text_collapsed p:has(> br:only-child),
+.mes_text_collapsed hr {
+    display: none;
+}
+
+.mes_text_collapsed h1,
+.mes_text_collapsed h2,
+.mes_text_collapsed h3,
+.mes_text_collapsed h4,
+.mes_text_collapsed h5,
+.mes_text_collapsed h6 {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 .mes_text_collapsed::after {
     content: '';
     position: absolute;
