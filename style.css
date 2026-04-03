@@ -1,1 +1,10 @@
-/* All style elements for your extension go here */
+.mes_text_collapsed {
+    display: -webkit-box !important;
+    -webkit-line-clamp: var(--collapse-lines, 3);
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+}
+
+.mes_collapse_btn {
+    order: -1; /* appear before other buttons */
+}
