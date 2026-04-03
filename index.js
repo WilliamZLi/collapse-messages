@@ -80,9 +80,41 @@ function addCollapseButton(mesElement) {
     }
 }
 
+function isEmptyBlock(el) {
+    if (el.matches('hr')) return true;
+    if (el.matches('p') && el.children.length === 0 && el.textContent.trim() === '') return true;
+    if (el.matches('p') && el.children.length === 1 && el.children[0].tagName === 'BR' && el.textContent.trim() === '') return true;
+    return false;
+}
+
+function computeCollapseHeight(mesTextEl, lines) {
+    const blocks = Array.from(mesTextEl.children).filter(el => !isEmptyBlock(el));
+    if (blocks.length === 0) return null;
+
+    const targetBlocks = blocks.slice(0, lines);
+    const lastBlock = targetBlocks[targetBlocks.length - 1];
+
+    const containerRect = mesTextEl.getBoundingClientRect();
+    const lastBlockRect = lastBlock.getBoundingClientRect();
+
+    const height = lastBlockRect.bottom - containerRect.top;
+    return height > 0 ? height : null;
+}
+
+function applyCollapseHeight(mesElement) {
+    const mesText = mesElement.find(".mes_text")[0];
+    if (!mesText) return;
+    const lines = getSettings().collapsedLines || 3;
+    const height = computeCollapseHeight(mesText, lines);
+    if (height !== null) {
+        mesText.style.setProperty('--computed-collapse-height', `${height}px`);
+    }
+}
+
 function initMessage(mesElement) {
     if (!mesElement.length) return;
     addCollapseButton(mesElement);
+    applyCollapseHeight(mesElement);
     const mesId = parseInt(mesElement.attr("mesid"));
     if (isCollapsed(mesId)) {
         applyCollapseVisual(mesElement, true);
@@ -98,6 +130,15 @@ function initAllMessages() {
 function updateLineClampVar() {
     const lines = getSettings().collapsedLines || 3;
     document.documentElement.style.setProperty("--collapse-lines", lines);
+    // Recompute heights for all messages since line count changed
+    $("#chat .mes").each(function () {
+        const mesElement = $(this);
+        const mesText = mesElement.find(".mes_text");
+        const wasCollapsed = mesText.hasClass("mes_text_collapsed");
+        if (wasCollapsed) mesText.removeClass("mes_text_collapsed");
+        applyCollapseHeight(mesElement);
+        if (wasCollapsed) mesText.addClass("mes_text_collapsed");
+    });
 }
 
 function loadSettings() {
@@ -130,7 +171,12 @@ jQuery(async () => {
     // Re-apply collapse after a message is edited (mes_text content is replaced)
     eventSource.on(event_types.MESSAGE_EDITED, (message_id) => {
         const mesElement = $(`#chat .mes[mesid="${message_id}"]`);
-        if (mesElement.length && isCollapsed(parseInt(message_id))) {
+        if (!mesElement.length) return;
+        // Temporarily uncollapse to get accurate measurements
+        const mesText = mesElement.find(".mes_text");
+        mesText.removeClass("mes_text_collapsed");
+        applyCollapseHeight(mesElement);
+        if (isCollapsed(parseInt(message_id))) {
             applyCollapseVisual(mesElement, true);
         }
     });
