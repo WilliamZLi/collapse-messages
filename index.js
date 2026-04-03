@@ -82,6 +82,7 @@ function addCollapseButton(mesElement) {
 
 function isEmptyBlock(el) {
     if (el.matches('hr')) return true;
+    if (el.matches('br')) return true;
     if (el.matches('p') && el.children.length === 0 && el.textContent.trim() === '') return true;
     if (el.matches('p') && el.children.length === 1 && el.children[0].tagName === 'BR' && el.textContent.trim() === '') return true;
     return false;
@@ -91,13 +92,36 @@ function computeCollapseHeight(mesTextEl, lines) {
     const blocks = Array.from(mesTextEl.children).filter(el => !isEmptyBlock(el));
     if (blocks.length === 0) return null;
 
-    const targetBlocks = blocks.slice(0, lines);
-    const lastBlock = targetBlocks[targetBlocks.length - 1];
-
+    const lineHeight = parseFloat(getComputedStyle(mesTextEl).lineHeight);
     const containerRect = mesTextEl.getBoundingClientRect();
-    const lastBlockRect = lastBlock.getBoundingClientRect();
 
-    const height = lastBlockRect.bottom - containerRect.top;
+    let linesUsed = 0;
+    let clipBottom = containerRect.top;
+
+    for (const block of blocks) {
+        const rect = block.getBoundingClientRect();
+
+        if (block.matches('h1, h2, h3, h4, h5, h6')) {
+            // Headings count as 1 logical line but render at full size
+            linesUsed += 1;
+            clipBottom = rect.bottom;
+        } else {
+            const blockLines = rect.height / lineHeight;
+            const available = lines - linesUsed;
+            if (blockLines <= available) {
+                linesUsed += blockLines;
+                clipBottom = rect.bottom;
+            } else {
+                // Clip partway through this block
+                clipBottom = rect.top + available * lineHeight;
+                linesUsed = lines;
+            }
+        }
+
+        if (linesUsed >= lines) break;
+    }
+
+    const height = clipBottom - containerRect.top;
     return height > 0 ? height : null;
 }
 
