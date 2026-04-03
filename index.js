@@ -74,7 +74,7 @@ function addCollapseButton(mesElement) {
     });
     const eyeBtn = mesElement.find(".mes_hide");
     if (eyeBtn.length) {
-        btn.insertAfter(eyeBtn);
+        btn.insertBefore(eyeBtn);
     } else {
         mesElement.find(".mes_buttons").prepend(btn);
     }
