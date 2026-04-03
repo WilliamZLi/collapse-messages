@@ -192,6 +192,20 @@ jQuery(async () => {
         initMessage($(`#chat .mes[mesid="${message_id}"]`));
     });
 
+    eventSource.on(event_types.MESSAGE_DELETED, (message_id) => {
+        const chatId = getChatId();
+        if (!chatId) return;
+        const arr = getSettings().collapsed[chatId];
+        if (!arr) return;
+        const id = parseInt(message_id);
+        const idx = arr.indexOf(id);
+        if (idx !== -1) arr.splice(idx, 1);
+        for (let i = 0; i < arr.length; i++) {
+            if (arr[i] > id) arr[i]--;
+        }
+        saveSettingsDebounced();
+    });
+
     // Re-apply collapse after a message is edited (mes_text content is replaced)
     eventSource.on(event_types.MESSAGE_EDITED, (message_id) => {
         const mesElement = $(`#chat .mes[mesid="${message_id}"]`);
