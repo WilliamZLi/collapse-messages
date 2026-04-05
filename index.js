@@ -192,6 +192,31 @@ jQuery(async () => {
         initMessage($(`#chat .mes[mesid="${message_id}"]`));
     });
 
+    $(document).on("mousedown", ".mes_edit_up, .mes_edit_down", function () {
+        const mesElement = $(this).closest(".mes");
+        const isUp = $(this).hasClass("mes_edit_up");
+        const fromId = parseInt(mesElement.attr("mesid"));
+        const toId = isUp ? fromId - 1 : fromId + 1;
+
+        if (!$(`#chat .mes[mesid="${toId}"]`).length) return;
+
+        const chatId = getChatId();
+        if (!chatId) return;
+        const arr = getSettings().collapsed[chatId];
+        if (!arr || arr.length === 0) return;
+
+        const fromIdx = arr.indexOf(fromId);
+        const toIdx = arr.indexOf(toId);
+
+        if (fromIdx === -1 && toIdx === -1) return;
+        if (fromIdx !== -1 && toIdx !== -1) return;
+
+        if (fromIdx !== -1) arr[fromIdx] = toId;
+        else arr[toIdx] = fromId;
+
+        saveSettingsDebounced();
+    });
+
     eventSource.on(event_types.MESSAGE_DELETED, (message_id) => {
         const chatId = getChatId();
         if (!chatId) return;
