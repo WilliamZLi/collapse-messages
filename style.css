@@ -1,6 +1,6 @@
 .mes_text_collapsed {
     max-height: var(--computed-collapse-height, calc(var(--collapse-lines, 3) * 1lh)) !important;
-    overflow: hidden !important;
+    overflow: clip !important;
     position: relative !important;
 }
 
